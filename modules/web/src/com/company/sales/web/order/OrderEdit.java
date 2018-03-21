@@ -46,8 +46,7 @@ public class OrderEdit extends AbstractEditor<Order> {
     }
 
     @Override
-    public void init(
-            Map<String, Object> params) {
+    public void init(Map<String, Object> params) {
         linesDs.addCollectionChangeListener(e -> calculateAmount());
         startProcessBtn.setVisible(!processExists());
     }
@@ -64,6 +63,14 @@ public class OrderEdit extends AbstractEditor<Order> {
         if (!PersistenceHelper.isNew(getItem())) {
             procActionsBox.setVisible(true);
         }
+    }
+
+    private void calculateAmount() {
+        BigDecimal amount = BigDecimal.ZERO;
+        for (OrderLine line : linesDs.getItems()) {
+            amount = amount.add(line.getProduct().getPrice().multiply(line.getQuantity()));
+        }
+        getItem().setAmount(amount);
     }
 
     private boolean processExists() {
@@ -96,13 +103,6 @@ public class OrderEdit extends AbstractEditor<Order> {
         }
     }
 
-    private void calculateAmount() {
-        BigDecimal amount = BigDecimal.ZERO;
-        for (OrderLine line : linesDs.getItems()) {
-            amount = amount.add(line.getProduct().getPrice().multiply(line.getQuantity()));
-        }
-        getItem().setAmount(amount);
-    }
 
     public void startProcess() {
         commit();
